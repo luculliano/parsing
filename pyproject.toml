@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "scraping"
+version = "0.1.0"
+description = "repository for learning async, requests"
+authors = ["luculliano <vederecento@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = {git = "https://github.com/psf/requests.git", rev = "v2.28.2"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
