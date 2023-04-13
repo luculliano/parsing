@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 requests = {git = "https://github.com/psf/requests.git", rev = "v2.28.2"}
+faker = "^18.4.0"
 
 
 [build-system]
