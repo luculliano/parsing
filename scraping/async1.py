@@ -1,11 +1,12 @@
 import asyncio
 import csv
-from typing import Iterable
-from faker import Faker
+import logging
+import time
 from secrets import randbelow
 from time import monotonic
-import time
+from typing import Iterable
 
+from faker import Faker
 
 ###############################################################################
 # async calling principle, it will be different output depending on the function
@@ -105,14 +106,16 @@ import time
 
 # asyncio.run(main())
 ###############################################################################
-# IO-bound operations: sleep as get query and write in csv
+# IO-bound operations: sleep as get query and write in csv + logging
 faker = Faker("ru_RU")
 
 
+logging.basicConfig(filename="first_log.log",
+                    level=logging.INFO,
+                    filemode="a",
+                    format="%(asctime)s %(levelname)s %(message)s")
+
 async def make_user(uid: int) -> dict[str, str | int]:
-    """Функция создает словарь, значения которого будут переданы
-    в объект DictWriter и записаны в файл
-    """
     await asyncio.sleep(1)
     return {"id_user": uid, "name": faker.name(), "email": faker.email()}
 
@@ -125,6 +128,7 @@ async def main() -> None:
         start = monotonic()
         writer.writerows(await asyncio.gather(*tasks))
         print(f"Uptime = {monotonic() - start} sec")
+    logging.info("generate lines")
 
 
 if __name__ == "__main__":

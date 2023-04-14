@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from time import monotonic
 
 import requests
 
@@ -30,4 +31,11 @@ import requests
 #     for chunk in res.iter_content(chunk_size=1_000_000):
 #         if chunk:
 #             file.write(chunk)
+###############################################################################
+# using proxy
+# headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"}
+# proxy = {"http": "http://72bb24:ed1aea@87.251.76.222:1010", "https": "http://72bb24:ed1aea@87.251.76.222:1010"}
+# url = "https://httpbin.org/user-agent"
+# res = requests.get("https://ipinfo.io/json",  proxies=proxy, headers=headers)
+# print(res.text)
 ###############################################################################
