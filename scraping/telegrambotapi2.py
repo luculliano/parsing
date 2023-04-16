@@ -33,7 +33,7 @@ def getUpdates(url: str) -> dict[str, Any]:
 ######################################################## 3
 
 
-def sendMessage(chat_id: str, text: str) -> dict[str, Any]:
+def sendMessage(chat_id: str, text: str, token: str) -> dict[str, Any]:
     """to send mesage to user"""
     method = "sendMessage"
     url = f"https://api.telegram.org/bot{token}/{method}"
