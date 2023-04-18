@@ -20,14 +20,6 @@ class Weather(NamedTuple):
     weather_type: str
 
 
-class CantGetCoordinates(Exception):
-    """Program can't get current coordinates"""
-
-
-class ApiServiceError(Exception):
-    """Program can't get current weather"""
-
-
 async def _parse_coordinates() -> Coordinates:
     ip_data = await _get_ip_data()
     loc = map(float, ip_data["loc"].split(","))
@@ -35,27 +27,21 @@ async def _parse_coordinates() -> Coordinates:
 
 
 async def _get_ip_data() -> dict[str, str]:
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://ipinfo.io/json", timeout=10) as response:
-                return await response.json()
-    except Exception:
-        raise CantGetCoordinates
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://ipinfo.io/json", timeout=10) as response:
+            return await response.json()
 
 
 async def _get_openweather_data() -> dict[str, Any]:
-    try:
-        async with aiohttp.ClientSession() as session:
-            lat, lon = await _parse_coordinates()
-            params = {"appid": TOKEN, "lat": lat, "lon": lon, "units": "metric"}
-            async with session.get(
-                "https://api.openweathermap.org/data/2.5/weather",
-                params=params,
-                timeout=30,
-            ) as response:
-                return await response.json()
-    except Exception:
-        raise ApiServiceError
+    async with aiohttp.ClientSession() as session:
+        lat, lon = await _parse_coordinates()
+        params = {"appid": TOKEN, "lat": lat, "lon": lon, "units": "metric"}
+        async with session.get(
+            "https://api.openweathermap.org/data/2.5/weather",
+            params=params,
+            timeout=10,
+        ) as response:
+            return await response.json()
 
 
 async def _parse_weather() -> Weather:
