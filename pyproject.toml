@@ -13,7 +13,7 @@ aiohttp = "^3.8.4"
 beautifulsoup4 = "^4.12.2"
 lxml = "^4.9.2"
 aiofiles = "^23.1.0"
-aiogram = "^2.25.1"
+aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "v3.0.0b7"}
 
 
 [build-system]
