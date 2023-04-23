@@ -28,9 +28,13 @@ I reply the same message as your send me.
 
 
 @dp.message(F.content_type == ContentType.PHOTO)
+# F.contentType.in_((ContentType.PHOTO, ...))
 async def process_photo(message: Message) -> None:
     """this hanle all photo type so to filter messages i need to use:
     F magic filter in construction F.content_type == ContentType.VOCIE/VIDEO...
+    ContentType is the same as key in Message dict, i.e. if message is audio it
+    has an audio attr if no => no audio key and it is None. I can do so too:
+    F.content_type == "audio"
     """
     logging.info(message.json(indent=2, exclude_none=True))
     await message.reply_photo(message.photo[0].file_id)

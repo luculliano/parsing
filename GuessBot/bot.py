@@ -108,7 +108,6 @@ async def proceed_numbers(message: Message) -> None:
             users[message.from_user.id]["attempts"] -= 1
             await message.reply(f"Too low. Attempts left: {users[message.from_user.id]['attempts']}")
 
-
 async def main() -> None:
     await dp.start_polling(bot)
 
