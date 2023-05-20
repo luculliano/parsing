@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "scraping"
 version = "0.1.0"
-description = "repository for learning async, requests"
+description = ""
 authors = ["luculliano <vederecento@gmail.com>"]
 readme = "README.md"
 
