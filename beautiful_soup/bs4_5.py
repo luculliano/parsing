@@ -1,80 +1,72 @@
 """scrap full https://parsinger.ru/"""
 
 import asyncio
-import re
+from time import monotonic
 from typing import Iterator
 
 import aiohttp
 from bs4 import BeautifulSoup
+import requests
 
 
-URL_SOURCE = "https://parsinger.ru/html/index1_page_1.html"
+URL = "https://parsinger.ru/html/index1_page_1.html"
+DOMAIN = "https://parsinger.ru/html/"
+
 URL_TEMPLATE = "https://parsinger.ru/html/"
-URL_PAGEN = "https://parsinger.ru/html/index{category}_page{page}.html"
 
 
-async def get_markup(url: str) -> str:
-    """it's used to extract html markup from url"""
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            return await response.text("utf-8")
+def get_soup(url: str) -> BeautifulSoup:
+    response = requests.get(url)
+    return BeautifulSoup(response.content.decode(), "lxml")
 
 
-async def get_category_links(url_source: str) -> Iterator[str]:
-    """
-    it's used to extract categories links from source url.
-    forms iterator of categories urls based on URL_TEMPLATE
-    """
-    markup = await get_markup(url_source)
-    soup = BeautifulSoup(markup, "lxml")
+def get_category_links(url: str) -> Iterator[str]:
+    """it's used to extract all category links from source url"""
+    soup = get_soup(url)
     return (
-        f"{URL_TEMPLATE}{i['href']}"
+        f"{DOMAIN}{i['href']}"
         for i in soup.find("div", class_="nav_menu").find_all("a")
     )
 
 
-async def get_pagen_links(url_category: str) -> Iterator[str]:
-    """
-    it's used to extract all pagination links from category url
-    forms iterator of pages urls based on URL_TEMPLATE
-    """
-    markup = await get_markup(url_category)
-    soup = BeautifulSoup(markup, "lxml")
+def get_pagen_links(url: str) -> Iterator[str]:
+    """it's used to extract all pagination links from category url"""
+    soup = get_soup(url)
     return (
-        f"{URL_TEMPLATE}{i['href']}"
+        f"{DOMAIN}{i['href']}"
         for i in soup.find("div", class_="pagen").find_all("a")
     )
 
 
-async def get_card_links(url_page: str) -> Iterator[str]:
-    """
-    it's used to extract all cards links from page url
-    forms iterator of cards urls based on URL_TEMPLATE
-    """
-    markup = await get_markup(url_page)
-    soup = BeautifulSoup(markup, "lxml")
+def get_card_links(url: str) -> Iterator[str]:
+    """it's used to extract all cards links from page url"""
+    soup = get_soup(url)
     return (
-        f"{URL_TEMPLATE}{div.find('a')['href']}"
+        f"{DOMAIN}{div.find('a')['href']}"
         for div in soup.find_all("div", class_="sale_button")
     )
 
 
-async def get_good_revenue(url_card: str) -> int:
-    """it's used to extract revenue number from card url"""
-    markup = await get_markup(url_card)
-    soup = BeautifulSoup(markup, "lxml")
-    price = int(soup.find("span", id="price").text.split()[0])
-    amount = int(soup.find("span", id="in_stock").text.split()[2])
-    return price * amount
+# async def get_good_revenue(url_card: str, session: aiohttp.ClientSession) -> int:
+#     """it's used to extract revenue number from card url"""
+#     markup = await get_markup(url_card, session)
+#     soup = BeautifulSoup(markup, "lxml")
+#     price = int(soup.find("span", id="price").text.split()[0])
+#     amount = int(soup.find("span", id="in_stock").text.split()[2])
+#     return price * amount
+
+def grab_all_links() -> Iterator[str]:
+    urls_category = get_category_links(URL)
+    urls_page = (get_pagen_links(i) for i in urls_category)
+    urls_card = (get_card_links(j) for i in urls_page for j in i)
+    return (j for i in urls_card for j in i)
 
 
 async def main() -> None:
-    for url_category in await get_category_links(URL_SOURCE):
-        for url_page in await get_pagen_links(url_category):
-            for url_card in await get_card_links(url_page):
-                print(url_card)
-
+    print(*grab_all_links())
 
 
 if __name__ == "__main__":
+    start = monotonic()
     asyncio.run(main())
+    print(monotonic() - start)
