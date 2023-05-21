@@ -13,7 +13,7 @@ aiohttp = "^3.8.4"
 lxml = "^4.9.2"
 aiofiles = "^23.1.0"
 aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "v3.0.0b7"}
-beautifulsoup4 = {path = "beautifulsoup4-4.12.2"}
+beautifulsoup4 = "^4.12.2"
 
 
 [build-system]
