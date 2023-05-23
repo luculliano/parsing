@@ -14,6 +14,7 @@ lxml = "^4.9.2"
 aiofiles = "^23.1.0"
 aiogram = {git = "https://github.com/aiogram/aiogram.git", rev = "v3.0.0b7"}
 beautifulsoup4 = "^4.12.2"
+tqdm = {git = "https://github.com/tqdm/tqdm.git", rev = "v4.65.0"}
 
 
 [build-system]

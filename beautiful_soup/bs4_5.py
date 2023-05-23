@@ -1,8 +1,5 @@
 """scrap full https://parsinger.ru/"""
 
-# add progres bar
-# add data to csv to make analysis
-
 import asyncio
 from time import monotonic
 from typing import Iterator
@@ -10,7 +7,7 @@ from typing import Iterator
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 import requests
-
+from tqdm import tqdm
 
 URL = "https://parsinger.ru/html/index1_page_1.html"
 DOMAIN = "https://parsinger.ru/html/"
@@ -34,9 +31,10 @@ async def get_pagen_links(url_category: str, session: ClientSession) -> Iterator
 
 async def grab_pagen_links(session: ClientSession) -> Iterator[str]:
     """grabs all pagen links to use them to extract card links, thirdly"""
-    tasks = (asyncio.create_task(get_pagen_links(i, session))
-             for i in get_category_links(URL))
-    result = await asyncio.gather(*tasks)
+    tasks = [asyncio.create_task(get_pagen_links(i, session))
+             for i in get_category_links(URL)]
+    result = [await f for f in tqdm(asyncio.as_completed(tasks),
+                            total=len(tasks), ascii=True, desc="grabbing pages...")]
     return (j for i in result for j in i)
 
 
@@ -51,13 +49,14 @@ async def get_card_links(url_page: str, session: ClientSession) -> Iterator[str]
 async def grab_card_links(session: ClientSession) -> Iterator[str]:
     """grabs all card links to use them to extract card info, fifthly"""
     urls_page = await grab_pagen_links(session)
-    tasks = (asyncio.create_task(get_card_links(i, session)) for i in urls_page)
-    result = await asyncio.gather(*tasks)
+    tasks = [asyncio.create_task(get_card_links(i, session)) for i in urls_page]
+    result = [await f for f in tqdm(asyncio.as_completed(tasks),
+                            total=len(tasks), ascii=True, desc="grabbing cards...")]
     return (j for i in result for j in i)
 
 
 async def get_good_revenue(url_card: str, session: ClientSession) -> int:
-    """it's used to extract revenue number from card url, sixthly"""
+    """it extracts revenue number from card url, sixthly"""
     async with session.get(url_card) as response:
         soup = BeautifulSoup(await response.text("utf-8"), "lxml")
         price = int(soup.find("span", id="price").text.split()[0])
@@ -68,8 +67,9 @@ async def get_good_revenue(url_card: str, session: ClientSession) -> int:
 async def get_cards_info(session: ClientSession) -> str:
     """it combines each card result as last step"""
     urls_card = await grab_card_links(session)
-    tasks = (asyncio.create_task(get_good_revenue(i, session)) for i in urls_card)
-    result = await asyncio.gather(*tasks)
+    tasks = [asyncio.create_task(get_good_revenue(i, session)) for i in urls_card]
+    result = [await f for f in tqdm(asyncio.as_completed(tasks),
+                            total=len(tasks), ascii=True, desc="summarizing...")]
     return f"result: {sum(result)} rub"
 
 
