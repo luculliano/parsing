@@ -1,3 +1,4 @@
 .env
 __pycache__/
 ajax_2_data/
+geckodriver.log
