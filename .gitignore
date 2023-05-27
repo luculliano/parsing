@@ -2,3 +2,4 @@
 __pycache__/
 ajax_2_data/
 geckodriver.log
+proxies.csv
