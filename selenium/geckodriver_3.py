@@ -1,6 +1,6 @@
-"""auth forms via cookies not work so use profiles (create it in first in about:profiles)"""
-import json
+"""auth forms via cookies not work in some sites so use profiles (create it in first in about:profiles)"""
 from os import getenv
+import pickle
 from time import sleep
 
 from fake_useragent import FakeUserAgent
@@ -14,20 +14,18 @@ password = getenv("SK_PASS")
 
 
 def save_cookies(cookies: list[dict]) -> None:
-    with open("cookies.json", "w", encoding="utf-8") as file:
-        json.dump(cookies, file)
+    with open("cookies.pkl", "wb") as file:
+        pickle.dump(cookies, file)
 
 
 def read_cookies() -> list[dict]:
-    with open("cookies.json", encoding="utf-8") as file:
-        return json.load(file)
+    with open("cookies.pkl", "rb") as file:
+        return pickle.load(file)
 
 
 def setup_driver() -> webdriver.FirefoxOptions:
     options = webdriver.FirefoxOptions()
     options.set_preference("general.useragent.override", FakeUserAgent().random)
-    options.add_argument("-profile")
-    options.add_argument("/home/luculliano/.mozilla/firefox/8t0o2jpq.dev")
     return options
 
 
@@ -48,9 +46,10 @@ def main(url: str) -> None:
     with webdriver.Firefox(options=options) as driver:
         driver.get(url)
         sleep(5)
+        for i in read_cookies(): driver.add_cookie(i)
         driver.refresh()
         sleep(5)
 
 
 if __name__ == "__main__":
-    main(url)
+    main("https://b4g-akk.ru/")
