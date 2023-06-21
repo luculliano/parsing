@@ -6,3 +6,4 @@ geckodriver.log
 *cookies.*
 *.log
 *.json
+code.html
