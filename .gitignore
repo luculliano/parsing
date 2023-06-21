@@ -4,3 +4,5 @@ ajax_2_data/
 geckodriver.log
 *proxies.csv
 *cookies.*
+*.log
+*.json
