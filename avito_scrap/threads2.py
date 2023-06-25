@@ -10,8 +10,8 @@ domain = "https://www.avito.ru"
 headers = {"user-agent": FakeUserAgent().random}
 
 
-def get_page(url: str, page: int) -> str:
-    res = requests.get(url.format(page=page), headers=headers, timeout=5)
+def get_page(session, url: str, page: int) -> str:
+    res = session.get(url.format(page=page), headers=headers, timeout=5)
     return res.content.decode()
 
 
@@ -20,8 +20,8 @@ def save_json(data: dict) -> None:
         json.dump(data, file, indent=2, ensure_ascii=False)
 
 
-def parse_page(url: str, page: int) -> None:
-    markup = get_page(url, page)
+def parse_page(session, url: str, page: int) -> None:
+    markup = get_page(session, url, page)
     soup = BeautifulSoup(markup, "lxml")
     for item in soup.find_all("div", class_="iva-item-body-KLUuy"):
         car = item.find("div", class_="iva-item-title-py3i_").find("a")
@@ -64,9 +64,10 @@ def parse_page(url: str, page: int) -> None:
 
 
 def main() -> None:
-    thrds = (threading.Thread(target=parse_page, args=(URL, i)) for i in range(1, 11))
-    for thrd in thrds:
-        thrd.start()
+    with requests.Session() as session:
+        thrds = (threading.Thread(target=parse_page, args=(session, URL, i)) for i in range(1, 11))
+        for thrd in thrds:
+            thrd.start()
 
 
 if __name__ == "__main__":
