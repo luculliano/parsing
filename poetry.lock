@@ -169,6 +169,27 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
+name = "arsenic"
+version = "21.8"
+description = "Asynchronous WebDriver client"
+category = "main"
+optional = false
+python-versions = "^3.7"
+files = []
+develop = false
+
+[package.dependencies]
+aiohttp = ">=3"
+attrs = ">=17.4.0"
+structlog = "^20.1.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/HENNGE/arsenic.git"
+reference = "HEAD"
+resolved_reference = "7d594eaecf373a8868475c149ee942bb1aeb1638"
+
+[[package]]
 name = "async-generator"
 version = "1.10"
 description = "Async generators and context managers for Python 3.5+"
@@ -956,6 +977,23 @@ files = [
 ]
 
 [[package]]
+name = "structlog"
+version = "20.2.0"
+description = "Structured Logging for Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "structlog-20.2.0-py2.py3-none-any.whl", hash = "sha256:33dd6bd5f49355e52c1c61bb6a4f20d0b48ce0328cc4a45fe872d38b97a05ccd"},
+    {file = "structlog-20.2.0.tar.gz", hash = "sha256:af79dfa547d104af8d60f86eac12fb54825f54a46bc998e4504ef66177103174"},
+]
+
+[package.extras]
+dev = ["coverage[toml]", "freezegun (>=0.2.8)", "furo", "pre-commit", "pretend", "pytest (>=6.0)", "pytest-asyncio", "pytest-randomly", "simplejson", "sphinx", "sphinx-toolbox", "twisted"]
+docs = ["furo", "sphinx", "sphinx-toolbox", "twisted"]
+tests = ["coverage[toml]", "freezegun (>=0.2.8)", "pretend", "pytest (>=6.0)", "pytest-asyncio", "pytest-randomly", "simplejson"]
+
+[[package]]
 name = "tqdm"
 version = "4.65.0"
 description = "Fast, Extensible Progress Meter"
@@ -1157,4 +1195,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "fb51f76d686441291d0ef50ca0c7fdd2a4a95f2d3808f221d072d52ceea0bc80"
+content-hash = "36529ad5c03c0ea1559b4f3a756a4456459e82504df76585d49b02900453988b"
