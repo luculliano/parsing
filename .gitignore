@@ -7,3 +7,4 @@ geckodriver.log
 *.log
 *.json
 code.html
+*.pql
