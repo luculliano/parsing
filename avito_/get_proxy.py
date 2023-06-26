@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 url = "https://hidemy.name/en/proxy-list/?type=hs#list"
 
 headers = {
-    "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/113.0",
-    "Accept": "*/*",
-    "Cookie": "PAPVisitorId=ce0fa373f1707c712284b04150YymZei; PAPVisitorId=ce0fa373f1707c712284b04150YymZei; _ga_KJFZ3PJZP3=GS1.1.1685167039.1.1.1685167177.0.0.0; _ga=GA1.1.706526997.1685167039; _ym_uid=1685167039560618683; _ym_d=1685167039; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; cf_chl_2=a7375133ae2842b; cf_clearance=wq3rvVLx1FCWKy9seRoMRNOhTp1XXjhriEOy5XsS5sQ-1685167097-0-150",
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/114.0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Cookie': 'cf_chl_2=f5a8003789a5a88; cf_clearance=iDdE.Wo7VfJE3gNw.xwrjbSNsu1ny_o9ttKFpzTW5ck-1687801945-0-150; PAPVisitorId=5a2b977ad666c8929826c66rdD334H9a; PAPVisitorId=5a2b977ad666c8929826c66rdD334H9a; _ym_uid=1687801960717015237; _ym_d=1687801960; _ym_isad=1; _ga_KJFZ3PJZP3=GS1.1.1687801960.1.1.1687802003.0.0.0; _ga=GA1.1.194180206.1687801960; _ym_hostIndex=0-2%2C1-0',
 }
 
 columns = ("ip_address", "port", "country_city",

@@ -1,16 +1,19 @@
 import functools
+import itertools
+import json
 import logging
+from pathlib import Path
+import pickle
 import re
 import sys
-import threading
-from time import monotonic
-from typing import Iterable
+from time import monotonic, sleep
+from typing import Iterable, Iterator
 
 from bs4 import BeautifulSoup
 from fake_useragent import FakeUserAgent
 import requests
-from requests.adapters import HTTPAdapter
 
+pagens = 1
 domain = "https://www.avito.ru"
 
 logging.basicConfig(
@@ -44,24 +47,26 @@ def save_markup(markup: str, file_name: str) -> None:
         logging.info("markup saved")
 
 
+def save_json(card_data: dict[str, str]) -> None:
+    with open(Path(__file__).parent.joinpath("avito_cars.json"), "a",
+              encoding="utf-8") as file:
+        json.dump(card_data, file, ensure_ascii=False, indent=3)
+        logging.info("append car data in json file")
+
+
 @error_handler
 def get_card(session: requests.Session, url: str) -> str:
-    markup = session.get(url, headers=headers, timeout=4).content.decode()
+    markup = session.get(url, headers=headers, timeout=10).content.decode()
     return markup
 
 
 @error_handler
 def get_card_data(session: requests.Session, url: str) -> str:
-    markup = session.get(url, headers=headers, timeout=4).content.decode()
+    markup = session.get(url, headers=headers, timeout=10).content.decode()
     return markup
 
 
-def get_markup_file(path: str) -> str:
-    with open(path, encoding="utf-8") as file:
-        return file.read()
-
-
-def parse_pagen(markup_pagen: str) -> tuple[list[str], list[str]]:
+def parse_pagen(markup_pagen: str) -> Iterable[str]:
     soup = BeautifulSoup(markup_pagen, "lxml")
     card_urls = [
     f'{domain}{card.find("div", class_="iva-item-title-py3i_").find("a")["href"]}'
@@ -69,17 +74,13 @@ def parse_pagen(markup_pagen: str) -> tuple[list[str], list[str]]:
     ]
     logging.info("grab all car links from pagen") if card_urls else \
                 logging.info("grab all car links from pagen FAILED")
-    thread1, thread2 = (
-            card_urls[:round(len(card_urls) / 2)],
-            card_urls[round(len(card_urls) / 2):]
-    )
-    return thread1, thread2
+    return card_urls
 
 
 @error_handler
-def get_pagen(session: requests.Session, pagen_url: str) -> tuple[list[str], list[str]]:
+def get_pagen(session: requests.Session, pagen_url: str) -> Iterable[str]:
     """returns all card's url from pagen as 2 threads"""
-    markup_pagen = session.get(pagen_url, headers=headers, timeout=4).content.decode()
+    markup_pagen = session.get(pagen_url, headers=headers, timeout=10).content.decode()
     return parse_pagen(markup_pagen)
 
 
@@ -94,13 +95,14 @@ def parse_card_data(markup_card_data: str) -> dict[str, str]:
     return dict(filter(lambda tpl: tpl[0] in cols, full))
 
 
-def parse_card(session: requests.Session, card_url: str) -> dict:
+@error_handler
+def parse_card(session: requests.Session, markup_card: str) -> None:
     """total card parsing"""
-    markup_card = get_card(session, card_url)
     soup = BeautifulSoup(markup_card, "lxml")
     card_data_url = domain + \
         soup.find("div", class_="params-specification-__5qD").find("a")["href"]  # pyright: ignore
-    addons = parse_card_data(get_card_data(session, card_data_url))
+    card_data_markup = get_card_data(session, card_data_url)
+    addons = parse_card_data(card_data_markup)
     title = soup.find("span", class_="title-info-title-text").text  # pyright: ignore
     brand, model = title.split()[0], title.split()[1].strip(",")
     date = soup.find("span", {"data-marker": "item-view/item-date"})
@@ -113,42 +115,26 @@ def parse_card(session: requests.Session, card_url: str) -> dict:
                        price=price.text if price else "",
                        loc=loc.text if loc else ""))
     data.update(addons)
-    logging.info("parsed full car's data")
-    return print(data)
+    save_json(data)
 
 
-def make_threads() -> tuple[list[threading.Thread], list[threading.Thread]]:
-    threads = get_pagen(session, pagen_markup)
-    threads1, threads2 = (
-        [threading.Thread(target=parse_card, args=(session, card_url))
-         for card_url in threads[0]],
-        [threading.Thread(target=parse_card, args=(session, card_url))
-         for card_url in threads[1]]
-    )
-    return threads1, threads2
-
-
-def start_threads(threads1: list[threading.Thread],
-                  threads2: list[threading.Thread]) -> None:
-    for thread in threads1:
-        thread.start()
-    for thread in threads1:
-        thread.join()
-    logging.info("finish half pagen")
-    for thread in threads2:
-        thread.start()
-    for thread in threads2:
-        thread.join()
-    logging.info("finish full pagen")
+def get_proxy() -> Iterator[dict[str, str] | None]:
+    with open("proxies.pql", "rb") as file:
+        return itertools.cycle(pickle.load(file))
 
 
 if __name__ == "__main__":
     start = monotonic()
-    for pagen_markup in prepare_pagens(1):
+    proxies = get_proxy()
+    for pagen_url in prepare_pagens(pagens):
         headers = {"user-agent": FakeUserAgent().random}
+        proxy = next(proxies)
         session = requests.Session()
-        session.mount("https://", HTTPAdapter(20, 20))
-        threads1, threads2 = make_threads()
-        start_threads(threads1, threads2)
+        for card_url in get_pagen(session, pagen_url):
+            # headers = {"user-agent": FakeUserAgent().random}
+            # proxy = next(proxies)
+            markup_card = get_card(session, card_url)
+            parse_card(session, markup_card)
+            sleep(2)
         session.close()
     print(monotonic() - start)

@@ -7,7 +7,7 @@ import csv
 from aiohttp import ClientSession
 
 url = "https://httpbin.org/ip"
-csv_file = "./proxies.csv"
+csv_file = "../good_proxies.csv"
 
 headers = {
     "user-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/113.0",
@@ -36,7 +36,7 @@ async def check_proxy(url: str, session: ClientSession,
     proxy_value = f"{proxy['ip_address']}:{proxy['port']}"
     try:
         async with session.get(url, proxy=f"http://{proxy_value}",
-                               timeout=7) as response:
+                               timeout=5) as response:
             if response.status == 200:
                 return proxy
     except Exception:
