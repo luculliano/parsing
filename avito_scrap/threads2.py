@@ -5,12 +5,12 @@ from bs4 import BeautifulSoup
 from fake_useragent import FakeUserAgent
 import requests
 
-URL = "https://www.avito.ru/all/avtomobili/land_rover?p={page}"
+URL = "https://www.avito.ru/perm/avtomobili?cd=1&p={page}&radius=200&searchRadius=200"
 domain = "https://www.avito.ru"
 headers = {"user-agent": FakeUserAgent().random}
 
 
-def get_page(session, url: str, page: int) -> str:
+def get_pagen(session, url: str, page: int) -> str:
     res = session.get(url.format(page=page), headers=headers, timeout=5)
     return res.content.decode()
 
@@ -21,7 +21,7 @@ def save_json(data: dict) -> None:
 
 
 def parse_page(session, url: str, page: int) -> None:
-    markup = get_page(session, url, page)
+    markup = get_pagen(session, url, page)
     soup = BeautifulSoup(markup, "lxml")
     for item in soup.find_all("div", class_="iva-item-body-KLUuy"):
         car = item.find("div", class_="iva-item-title-py3i_").find("a")
